@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 gray = new Mat();
                 rects = new MatOfRect();
                 timeStart = System.currentTimeMillis();
-                 /// Aplicar archivo Cascade que detecte los bordes de la cedula:
-                // carga el archivo cascade para deteccion de caras frontales  : Pendiente!!!!
+                 /// Aplicar archivo Cascade que detecte los bordes de la cedula:: Pendiente!!!!
+                // carga el archivo cascade para deteccion de caras frontales
                 try {
                     InputStream inputStream = getResources().openRawResource(R.raw.lbpcascade_frontalface);
                     File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
@@ -156,7 +156,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     submat.release();
                 }
-
+                     //Aplicar que se cambie la ayuda visual dependiendo el rostro:
+                     //Agregar condicion para que en la segunda foto se tome la captura de la parte trasera de la cedula : Sugerencia: trabajar ya sea con la deteccio OCR O deteccion de la huella
                 if (frontalFaceDetected && System.currentTimeMillis() - timeStart >= 10000) {
                     JavaCameraView cameraView = findViewById(R.id.camera_view);
                     cameraView.disableView();
@@ -172,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                         Glide.with(getApplicationContext()).load(imageString).into(imageView);
                         btnNuevaFoto.setEnabled(true);
                          tomadoFoto = false;
-                        //Deteccion De OCR
+                        //Deteccion De OCR //Aun sin hacer pruebas de esta parte:
                         Context context = getApplicationContext();
                         TextRecognizer textRecognizer = new TextRecognizer.Builder(context).build();
                         if (!textRecognizer.isOperational()) {
