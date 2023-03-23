@@ -50,8 +50,7 @@ public class MainActivity_Seconds extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_seconds);
         getPermission();
-        getPermissionexternal();
-        cameraBridgeViewBase = findViewById(R.id.camera_view2);
+         cameraBridgeViewBase = findViewById(R.id.camera_view2);
         cameraBridgeViewBase.setCameraPermissionGranted();
         Inicio=(Button) findViewById(R.id.Inicio);
          String base64Image= getIntent().getStringExtra("base64Image");
@@ -111,30 +110,19 @@ public class MainActivity_Seconds extends AppCompatActivity {
                 Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
                 Utils.matToBitmap(mat, bmp);
 
-                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DocumentoCaratrasera.jpg";
-                File file = new File(filePath);
-                try {
-                    FileOutputStream outputStream = new FileOutputStream(file);
-                    bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                    outputStream.flush();
-                    outputStream.close();
-                    base64Image2 = convertBitmapToBase64(bmp);
-                    System.out.println(base64Image2);
-
-                    runOnUiThread(() -> {
-                        ImageView imageView = findViewById(R.id.imageView2);
-                        imageView.setImageBitmap(bmp);
-                    });
-                    runOnUiThread(() -> {
-                        cameraBridgeViewBase.disableView();
-                    });
-                    runOnUiThread(() -> {
-                        Button button = findViewById(R.id.Inicio);
-                        button.setEnabled(true);
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                base64Image2 = convertBitmapToBase64(bmp); // Se guarda la imagen en base64 en una variable
+                System.out.println(base64Image2);
+                runOnUiThread(() -> {
+                    ImageView imageView = findViewById(R.id.imageView);
+                    imageView.setImageBitmap(bmp);
+                });
+                runOnUiThread(() -> {
+                    cameraBridgeViewBase.disableView();
+                });
+                runOnUiThread(() -> {
+                    Button button = findViewById(R.id.btnNewPhoto);
+                    button.setEnabled(true);
+                });
             }
 
             private String convertBitmapToBase64(Bitmap bitmap) {
@@ -250,11 +238,6 @@ public class MainActivity_Seconds extends AppCompatActivity {
         }
     }
 
-    private void getPermissionexternal() {
-        if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
