@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity_Seconds">
 
 
     <org.opencv.android.JavaCameraView
@@ -34,7 +34,7 @@
         android:rotation="180" />
 
     <Button
-        android:id="@+id/init"
+        android:id="@+id/Inicio"
         android:layout_width="199dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -46,23 +46,8 @@
         android:layout_marginEnd="110dp"
         android:layout_marginBottom="108dp"
         android:enabled="false"
-        android:text="INICIO" />
+        android:text="VALIDAR FOTOS" />
 
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="55dp"
-        android:layout_height="52dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="7dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="349dp"
-        android:layout_marginBottom="600dp"
-        android:enabled="false"
-        android:text=" "
-        app:icon="@drawable/icon" />
 
 
 

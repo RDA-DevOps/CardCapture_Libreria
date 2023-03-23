@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private int framesCount = 120;
     long timeStart;
     Button btnNewPhoto;
+    String base64Image;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
         btnNewPhoto=(Button) findViewById(R.id.btnNewPhoto);
 
 
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
+        }
         btnNewPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setVisibility(View.GONE); // ocultar ImageView
                 Intent intent = new Intent(MainActivity.this, MainActivity_Seconds.class);
+                intent.putExtra("base64Image", base64Image); // enviar base64Image a la siguiente
                 startActivity(intent);
                 onResume();
                 cameraBridgeViewBase.enableView();
@@ -112,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                     bmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
                     outputStream.flush();
                     outputStream.close();
-                    String base64Image = convertBitmapToBase64(bmp);
+                    base64Image = convertBitmapToBase64(bmp);
                     System.out.println(base64Image);
 
                     runOnUiThread(() -> {
@@ -133,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
 
             private String convertBitmapToBase64(Bitmap bitmap) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
                 byte[] byteArray = outputStream.toByteArray();
                 return Base64.encodeToString(byteArray, Base64.DEFAULT);
             }
@@ -197,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (OpenCVLoader.initDebug()) {
             cameraBridgeViewBase.enableView();
-            cameraBridgeViewBase.enableFpsMeter();
+            //cameraBridgeViewBase.enableFpsMeter();
             //cameraBridgeViewBase.setMaxFrameSize(640,360);
         }
     }
@@ -225,7 +231,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
 
 
     //Validar Permisos Cada vez que se Inicie la app

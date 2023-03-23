@@ -1,71 +1,111 @@
 package com.example.opencv;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Base64;
-import android.util.Log;
-import android.util.SparseArray;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
-
 import org.opencv.android.CameraBridgeViewBase;
- import org.opencv.android.JavaCameraView;
+import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
- import org.opencv.core.Rect;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
-public class MainActivity_Seconds extends AppCompatActivity  {
+
+public class MainActivity_Seconds extends AppCompatActivity {
+
     private JavaCameraView cameraBridgeViewBase;
-    private Mat grayscaleImage;
-    private Mat thresholdImage;
+    Mat rgb, gray;
+    MatOfRect rects;
+    CascadeClassifier cascadeClassifier;
     private int framesCount = 120;
-    private static final String TAG = "MainActivity";
-
-
-    @Override
+    long timeStart = System.currentTimeMillis();
+    boolean fifteenSecondsPassed = false;
+    Button Inicio;
+    String base64Image2;
+     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_seconds);
         getPermission();
         getPermissionexternal();
         cameraBridgeViewBase = findViewById(R.id.camera_view2);
-         cameraBridgeViewBase.setCameraPermissionGranted();
+        cameraBridgeViewBase.setCameraPermissionGranted();
+        Inicio=(Button) findViewById(R.id.Inicio);
+         String base64Image= getIntent().getStringExtra("base64Image");
+
+
+        Inicio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Inicio.setEnabled(false);
+                ImageView imageView = findViewById(R.id.imageView2);
+                imageView.setVisibility(View.GONE); // ocultar ImageView
+                Intent intent = new Intent(MainActivity_Seconds.this, init.class);
+                intent.putExtra("ParteTrasera", base64Image2); // enviar base64Image a la siguiente
+                intent.putExtra("ParteDelantera", base64Image); // enviar base64Image a la siguiente
+
+                startActivity(intent);
+                onResume();
+                cameraBridgeViewBase.enableView();
+            }
+        });
 
         cameraBridgeViewBase.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
-    @Override
-    public void onCameraViewStarted(int width, int height) {
-        grayscaleImage = new Mat(height, width, CvType.CV_8UC1);
-        thresholdImage = new Mat(height, width, CvType.CV_8UC1);
-    }
 
-    @Override
-    public void onCameraViewStopped() {
-        grayscaleImage.release();
-        thresholdImage.release();
-    }
+            public void onCameraViewStarted(int width, int height) {
+                rgb = new Mat();
+                gray = new Mat();
+                rects = new MatOfRect();
+                try {
+                    InputStream inputStream = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+                    File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+                    File cascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+                    FileOutputStream outputStream = new FileOutputStream(cascadeFile);
+
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                    inputStream.close();
+                    outputStream.close();
+
+                    cascadeClassifier = new CascadeClassifier(cascadeFile.getAbsolutePath());
+                    cascadeDir.delete();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCameraViewStopped() {
+                rgb.release();
+                gray.release();
+                rects.release();
+            }
 
             private void saveCapturedImage(Mat mat) {
                 Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
@@ -75,21 +115,21 @@ public class MainActivity_Seconds extends AppCompatActivity  {
                 File file = new File(filePath);
                 try {
                     FileOutputStream outputStream = new FileOutputStream(file);
-                    bmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
                     outputStream.flush();
                     outputStream.close();
-                    String base64Image = convertBitmapToBase64(bmp);
-                    System.out.println(base64Image);
+                    base64Image2 = convertBitmapToBase64(bmp);
+                    System.out.println(base64Image2);
 
                     runOnUiThread(() -> {
-                        ImageView imageView = findViewById(R.id.imageView);
+                        ImageView imageView = findViewById(R.id.imageView2);
                         imageView.setImageBitmap(bmp);
                     });
                     runOnUiThread(() -> {
                         cameraBridgeViewBase.disableView();
                     });
                     runOnUiThread(() -> {
-                        Button button = findViewById(R.id.btnNewPhoto);
+                        Button button = findViewById(R.id.Inicio);
                         button.setEnabled(true);
                     });
                 } catch (Exception e) {
@@ -110,70 +150,83 @@ public class MainActivity_Seconds extends AppCompatActivity  {
                 Core.flip(rotated, rotated, 1);
                 return rotated;
             }
-            private Rect detectBarcode(Mat inputImage) {
-                Bitmap bitmap = Bitmap.createBitmap(inputImage.width(), inputImage.height(), Bitmap.Config.ARGB_8888);
-                Utils.matToBitmap(inputImage, bitmap);
 
-                BarcodeDetector detector = new BarcodeDetector.Builder(getApplicationContext())
-                        .setBarcodeFormats(Barcode.PDF417)
-                        .build();
+            private boolean isFrontalFace(Mat mat) {
+                MatOfRect faces = new MatOfRect();
+                Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+                cascadeClassifier.detectMultiScale(gray, faces, 1.1, 2, 0, new Size(30, 30));
 
-                if (!detector.isOperational()) {
-                     return null;
+                Rect[] facesArray = faces.toArray();
+                if (facesArray.length == 0) {
+                    return false;
                 }
 
-                Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-                SparseArray<Barcode> barcodes = detector.detect(frame);
-
-                for (int i = 0; i < barcodes.size(); i++) {
-                    Barcode barcode = barcodes.valueAt(i);
-                    if (barcode.format == Barcode.PDF417) {
-                        android.graphics.Rect rect = barcode.getBoundingBox();
-                        return new Rect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
-                    }
+                Rect faceRect = facesArray[0];
+                if (faceRect.width > mat.width() * 0.5 && faceRect.height > mat.height() * 0.5) {
+                    return true;
                 }
 
-                return null;
+                return false;
             }
 
             @Override
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 if (framesCount == 120) {
                     framesCount = 0;
-                    Mat inputImage = inputFrame.rgba();
-                    Mat grayscaleImage = new Mat();
-                    Mat thresholdImage = new Mat();
-                    Imgproc.cvtColor(inputImage, grayscaleImage, Imgproc.COLOR_RGBA2GRAY);
-                    Imgproc.threshold(grayscaleImage, thresholdImage, 0, 255, Imgproc.THRESH_BINARY_INV | Imgproc.THRESH_OTSU);
-                    Rect barcodeRect = detectBarcode(thresholdImage);
-                    if (barcodeRect != null) {
-                        runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Código de barras detectado", Toast.LENGTH_SHORT).show());
-                        Mat rotated = rotateImage(grayscaleImage);
+                    Mat rgb = inputFrame.rgba();
+                    Mat gray = inputFrame.gray();
+                    cascadeClassifier.detectMultiScale(gray, rects, 1.1, 2);
+                    boolean frontalFaceDetected = false;
+                    for (Rect rect : rects.toList()) {
+                        Mat submat = rgb.submat(rect);
+                        if (isFrontalFace(submat)) {
+                            frontalFaceDetected = true;
+                            //Imgproc.rectangle(rgb, rect, new Scalar(0, 255, 0, 0), 0);
+                            break;
+                        }
+                        submat.release();
+                    }
+
+                     boolean fifteenSecondsPassed = System.currentTimeMillis() - timeStart >= 10000;
+
+                    if (!frontalFaceDetected && fifteenSecondsPassed) {
+                        Mat rotated = rotateImage(rgb);
                         saveCapturedImage(rotated);
                         rotated.release();
-                         Imgproc.rectangle(inputImage, barcodeRect.tl(), barcodeRect.br(), new Scalar(0, 255, 0), 4);
-                        return inputImage;
-                    } else {
-                        runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Código de barras no detectado", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> {
+                        });
+                        fifteenSecondsPassed = false; // Reset the flag
                     }
+
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - timeStart >= 10000) {
+                        fifteenSecondsPassed = true;
+                    }
+
                 }
                 framesCount++;
                 return inputFrame.rgba();
             }
+
         });
+
         if (OpenCVLoader.initDebug()) {
             cameraBridgeViewBase.enableView();
             cameraBridgeViewBase.enableFpsMeter();
             //cameraBridgeViewBase.setMaxFrameSize(640,360);
         }
     }
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
         cameraBridgeViewBase.enableView();
 
     }
-     @Override
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         cameraBridgeViewBase.disableView();
@@ -187,6 +240,9 @@ public class MainActivity_Seconds extends AppCompatActivity  {
 
 
     }
+
+
+    //Validar Permisos Cada vez que se Inicie la app
 
     private void getPermission() {
         if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -207,7 +263,7 @@ public class MainActivity_Seconds extends AppCompatActivity  {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(MainActivity_Seconds.this, "Permisos concedidos", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity_Seconds.this,"No se concedieron los permisos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity_Seconds.this, "No se concedieron los permisos", Toast.LENGTH_SHORT).show();
             }
         }
     }
