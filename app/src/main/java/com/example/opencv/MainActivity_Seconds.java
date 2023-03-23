@@ -183,7 +183,7 @@ public class MainActivity_Seconds extends AppCompatActivity {
                         rotated.release();
                         runOnUiThread(() -> {
                         });
-                        fifteenSecondsPassed = false; // Reset the flag
+                        fifteenSecondsPassed = false;
                     }
 
                     long currentTime = System.currentTimeMillis();

@@ -51,15 +51,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getPermission();
-         getPermissionexternal();
-        cameraBridgeViewBase = findViewById(R.id.camera_view);
+         cameraBridgeViewBase = findViewById(R.id.camera_view);
         cameraBridgeViewBase.setCameraPermissionGranted();
         btnNewPhoto=(Button) findViewById(R.id.btnNewPhoto);
 
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
-        }
+
         btnNewPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,9 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, MainActivity_Seconds.class);
                 intent.putExtra("base64Image", base64Image); // enviar base64Image a la siguiente
                 startActivity(intent);
-                onResume();
-                cameraBridgeViewBase.enableView();
-            }
+             }
         });
 
         cameraBridgeViewBase.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
@@ -230,13 +225,6 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 101);
         }
     }
-
-    private void getPermissionexternal() {
-        if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
-        }
-    }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

@@ -17,8 +17,6 @@ import androidx.core.content.ContextCompat;
 
 public class init extends AppCompatActivity {
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
