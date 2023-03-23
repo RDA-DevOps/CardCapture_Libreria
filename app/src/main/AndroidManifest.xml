@@ -15,8 +15,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.OpenCV"
         tools:targetApi="31">
@@ -44,7 +43,14 @@
                 android:value=""
                 />
         </activity>
-
+        <activity
+            android:name=".MainActivity_Seconds"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value=""
+                />
+        </activity>
     </application>
 
 </manifest>

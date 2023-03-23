@@ -10,16 +10,16 @@
     <org.opencv.android.JavaCameraView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/camera_view"/>
+        android:id="@+id/camera_view2"/>
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageView2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter" />
 
     <View
-        android:id="@+id/documentView"
+        android:id="@+id/documentView2"
         android:layout_width="wrap_content"
         android:layout_height="482dp"
         android:layout_alignParentStart="true"
@@ -34,7 +34,7 @@
         android:rotation="180" />
 
     <Button
-        android:id="@+id/btnNewPhoto"
+        android:id="@+id/init"
         android:layout_width="199dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -46,7 +46,7 @@
         android:layout_marginEnd="110dp"
         android:layout_marginBottom="108dp"
         android:enabled="false"
-        android:text="SIGUIENTE FOTO" />
+        android:text="INICIO" />
 
     <Button
         android:id="@+id/button3"
@@ -63,6 +63,8 @@
         android:enabled="false"
         android:text=" "
         app:icon="@drawable/icon" />
+
+
 
 
 </RelativeLayout>
