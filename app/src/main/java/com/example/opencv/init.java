@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 
-public class init extends AppCompatActivity {
+public class Init extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +23,7 @@ public class init extends AppCompatActivity {
         setContentView(R.layout.init);
         getPermission();
         getPermissionexternal();
-         Button New;
+        Button New;
         New=(Button) findViewById(R.id.New);
 
         String base64Image= getIntent().getStringExtra("ParteDelantera");
@@ -47,12 +47,12 @@ public class init extends AppCompatActivity {
         New.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 ImageView imageView = findViewById(R.id.imageView);
+                ImageView imageView = findViewById(R.id.imageView);
                 imageView.setVisibility(View.GONE); // ocultar ImageView
-                Intent intent = new Intent(init.this, MainActivity_Seconds.class);
+                Intent intent = new Intent(Init.this, MainActivity_Seconds.class);
                 startActivity(intent);
                 onResume();
-             }
+            }
         });
 
 
@@ -77,9 +77,9 @@ public class init extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 101) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(init.this, "Permisos concedidos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Init.this, "Permisos concedidos", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(init.this, "No se concedieron los permisos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Init.this, "No se concedieron los permisos", Toast.LENGTH_SHORT).show();
             }
         }
     }
