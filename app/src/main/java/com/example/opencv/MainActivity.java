@@ -1,19 +1,19 @@
 package com.example.opencv;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
@@ -26,7 +26,6 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,13 +35,12 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
-
+    PowerManager.WakeLock wakeLock;
     private JavaCameraView cameraBridgeViewBase;
     Mat rgb, gray;
     MatOfRect rects;
     CascadeClassifier FaceModelCascadeClasifier;
     private int framesCount = 120;
-    long timeStart;
     Button btnNewPhoto;
     String base64Image;
 
@@ -61,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 btnNewPhoto.setEnabled(false);
                 ImageView imageView = findViewById(R.id.imageView);
-                imageView.setVisibility(View.GONE); // ocultar ImageView
-                Intent intent = new Intent(MainActivity.this, MainActivity_Seconds.class);
-                intent.putExtra("base64Image", base64Image); // enviar base64Image a la siguiente
+                imageView.setVisibility(View.GONE);
+                Intent intent = new Intent(MainActivity.this,MainActivity_Seconds.class);
+                intent.putExtra("base64Image", base64Image);
                 startActivity(intent);
             }
         });
@@ -106,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
                 Utils.matToBitmap(mat, bmp);
 
-                base64Image = convertBitmapToBase64(bmp); // Se guarda la imagen en base64 en una variable
+                base64Image = convertBitmapToBase64(bmp);
                 System.out.println(base64Image);
                 runOnUiThread(() -> {
                     ImageView imageView = findViewById(R.id.imageView);
@@ -135,65 +133,43 @@ public class MainActivity extends AppCompatActivity {
                 return rotated;
             }
 
-            private boolean isFrontalFace(Mat mat) {
+            private boolean facesDetected(Mat grayFrame) {
                 MatOfRect faces = new MatOfRect();
-                Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
-                FaceModelCascadeClasifier.detectMultiScale(gray, faces, 1.1, 2, 0, new Size(30, 30));
-
-                Rect[] facesArray = faces.toArray();
-                if (facesArray.length == 0) {
-                    return false;
-                }
-
-                Rect faceRect = facesArray[0];
-                if (faceRect.width > mat.width() * 0.5 && faceRect.height > mat.height() * 0.5) {
-                    return true;
-                }
-
-                return false;
+                double scaleFactor = 1.1;
+                int minNeighbors = 3;
+                Size minSize = new Size(120.0, 120.0);
+                FaceModelCascadeClasifier.detectMultiScale(grayFrame, faces, scaleFactor, minNeighbors, 0, minSize);
+                List<Rect> facesList = faces.toList();
+                return !facesList.isEmpty();
             }
 
-            @Override
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-
                 rgb = inputFrame.rgba();
-
-                if(framesCount > 10) {
-
+                if (framesCount > 10) {
                     framesCount = 0;
-
                     AsyncTask.execute(new Runnable() {
                         @Override
                         public void run() {
                             Mat grayFrame = inputFrame.gray();
-                            double x = grayFrame.width();
-                            double y = grayFrame.height();
-
-                            MatOfRect faces = new MatOfRect();
-
-                            double scaleFactor = 1.1;
-                            int minNeighbors = 3;
-                            Size minSize = new Size(120.0, 120.0);
-
-
-                            FaceModelCascadeClasifier.detectMultiScale(grayFrame, faces, scaleFactor, minNeighbors, 0, minSize);
-
-                            List<Rect> facesList = faces.toList();
-
-                            for (Rect rect : facesList) {
-                                //Imgproc.rectangle(rgb,rect, new Scalar(0,255,0),10);
-                                if (rect.x > (x / 2)) {
-
+                            boolean facesDetected = facesDetected(grayFrame);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (facesDetected) {
+                                        saveCapturedImage(rgb);
+                                        Mat rotatedFrame = rotateImage(grayFrame);
+                                        saveCapturedImage(rotatedFrame);
+                                        Toast.makeText(getApplicationContext(), "Rostro detectado", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "No se ha detectado rostro", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
+                            });
                         }
                     });
-
-
                 }
-
                 framesCount++;
-                return rgb;
+                return inputFrame.rgba();
             }
 
         });
@@ -227,6 +203,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
 
 
     //Validar Permisos Cada vez que se Inicie la app
