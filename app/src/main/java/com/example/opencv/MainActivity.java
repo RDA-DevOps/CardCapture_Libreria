@@ -1,6 +1,5 @@
 package com.example.opencv;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,9 +21,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -61,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setVisibility(View.GONE);
                 Intent intent = new Intent(MainActivity.this,MainActivity_Seconds.class);
-                intent.putExtra("base64Image", base64Image);
+                //intent.putExtra("base64Image", base64Image);
                 startActivity(intent);
             }
         });
@@ -105,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
                 Utils.matToBitmap(mat, bmp);
 
                 base64Image = convertBitmapToBase64(bmp);
-                System.out.println(base64Image);
                 runOnUiThread(() -> {
                     ImageView imageView = findViewById(R.id.imageView);
                     imageView.setImageBitmap(bmp);
@@ -121,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
             private String convertBitmapToBase64(Bitmap bitmap) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
                 byte[] byteArray = outputStream.toByteArray();
                 return Base64.encodeToString(byteArray, Base64.DEFAULT);
             }
@@ -133,31 +129,43 @@ public class MainActivity extends AppCompatActivity {
                 return rotated;
             }
 
-            private boolean facesDetected(Mat grayFrame) {
+            private boolean detectFace(Mat grayFrame) {
+
+                double x = grayFrame.width();
+                double y = grayFrame.height();
+
                 MatOfRect faces = new MatOfRect();
                 double scaleFactor = 1.1;
-                int minNeighbors = 3;
-                Size minSize = new Size(120.0, 120.0);
+                int minNeighbors = 5;
+                Size minSize = new Size(200, 200);
                 FaceModelCascadeClasifier.detectMultiScale(grayFrame, faces, scaleFactor, minNeighbors, 0, minSize);
                 List<Rect> facesList = faces.toList();
-                return !facesList.isEmpty();
+
+                for (Rect rect : facesList) {
+                    //Imgproc.rectangle(rgb,rect, new Scalar(0,255,0),10);
+                    if (rect.x > (x / 2)) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
 
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 rgb = inputFrame.rgba();
-                if (framesCount > 10) {
+                if (framesCount > 30) {
                     framesCount = 0;
                     AsyncTask.execute(new Runnable() {
                         @Override
                         public void run() {
+                            Mat originalFrame = inputFrame.rgba();
                             Mat grayFrame = inputFrame.gray();
-                            boolean facesDetected = facesDetected(grayFrame);
+                            boolean facesDetected = detectFace(grayFrame);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (facesDetected) {
-                                        saveCapturedImage(rgb);
-                                        Mat rotatedFrame = rotateImage(grayFrame);
+                                        Mat rotatedFrame = rotateImage(originalFrame);
                                         saveCapturedImage(rotatedFrame);
                                         Toast.makeText(getApplicationContext(), "Rostro detectado", Toast.LENGTH_SHORT).show();
                                     } else {
