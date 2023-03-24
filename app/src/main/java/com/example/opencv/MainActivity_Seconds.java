@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Base64;
@@ -13,28 +12,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity_Seconds extends AppCompatActivity {
     PowerManager.WakeLock wakeLock;
     private JavaCameraView cameraBridgeViewBase;
     Mat rgb, gray;
@@ -47,11 +42,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_seconds);
         getPermission();
-        cameraBridgeViewBase = findViewById(R.id.camera_view);
+        cameraBridgeViewBase = findViewById(R.id.camera_view2);
         cameraBridgeViewBase.setCameraPermissionGranted();
-        btnNewPhoto = (Button) findViewById(R.id.btnNewPhoto);
+        btnNewPhoto = (Button) findViewById(R.id.Inicio);
 
 
         btnNewPhoto.setOnClickListener(new View.OnClickListener() {
@@ -60,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 btnNewPhoto.setEnabled(false);
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setVisibility(View.GONE);
-                Intent intent = new Intent(MainActivity.this,MainActivity_Seconds.class);
+                Intent intent = new Intent(MainActivity_Seconds.this, Init.class);
                 intent.putExtra("base64Image", base64Image);
                 startActivity(intent);
             }
@@ -95,28 +90,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCameraViewStopped() {
-                rgb.release();
-                gray.release();
-                rects.release();
+
             }
 
             private void saveCapturedImage(Mat mat) {
-                Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-                Utils.matToBitmap(mat, bmp);
 
-                base64Image = convertBitmapToBase64(bmp);
-                System.out.println(base64Image);
-                runOnUiThread(() -> {
-                    ImageView imageView = findViewById(R.id.imageView);
-                    imageView.setImageBitmap(bmp);
-                });
-                runOnUiThread(() -> {
-                    cameraBridgeViewBase.disableView();
-                });
-                runOnUiThread(() -> {
-                    Button button = findViewById(R.id.btnNewPhoto);
-                    button.setEnabled(true);
-                });
             }
 
             private String convertBitmapToBase64(Bitmap bitmap) {
@@ -133,45 +111,10 @@ public class MainActivity extends AppCompatActivity {
                 return rotated;
             }
 
-            private boolean facesDetected(Mat grayFrame) {
-                MatOfRect faces = new MatOfRect();
-                double scaleFactor = 1.1;
-                int minNeighbors = 3;
-                Size minSize = new Size(120.0, 120.0);
-                FaceModelCascadeClasifier.detectMultiScale(grayFrame, faces, scaleFactor, minNeighbors, 0, minSize);
-                List<Rect> facesList = faces.toList();
-                return !facesList.isEmpty();
-            }
 
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-                rgb = inputFrame.rgba();
-                if (framesCount > 10) {
-                    framesCount = 0;
-                    AsyncTask.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            Mat grayFrame = inputFrame.gray();
-                            boolean facesDetected = facesDetected(grayFrame);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (facesDetected) {
-                                        saveCapturedImage(rgb);
-                                        Mat rotatedFrame = rotateImage(grayFrame);
-                                        saveCapturedImage(rotatedFrame);
-                                        Toast.makeText(getApplicationContext(), "Rostro detectado", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(getApplicationContext(), "No se ha detectado rostro", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-                framesCount++;
-                return inputFrame.rgba();
+                 return inputFrame.rgba();
             }
-
         });
 
         if (OpenCVLoader.initDebug()) {
@@ -180,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
             //cameraBridgeViewBase.setMaxFrameSize(640,360);
         }
     }
-
 
     @Override
     protected void onResume() {
@@ -206,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
     //Validar Permisos Cada vez que se Inicie la app
 
     private void getPermission() {
@@ -220,9 +161,9 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 101) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainActivity.this, "Permisos concedidos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity_Seconds.this, "Permisos concedidos", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "No se concedieron los permisos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity_Seconds.this, "No se concedieron los permisos", Toast.LENGTH_SHORT).show();
             }
         }
     }
