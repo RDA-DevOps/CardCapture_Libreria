@@ -19,31 +19,31 @@
         android:scaleType="fitCenter" />
 
     <View
-        android:id="@+id/documentView2"
-        android:layout_width="wrap_content"
-        android:layout_height="482dp"
+        android:id="@+id/documentView"
+        android:layout_width="638px"
+        android:layout_height="491dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="43dp"
-        android:layout_marginTop="90dp"
-        android:layout_marginEnd="48dp"
-        android:layout_marginBottom="87dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="83dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="84dp"
         android:background="@drawable/shape_border"
-        android:rotation="180" />
+        android:rotation="180"/>
 
     <Button
         android:id="@+id/Inicio"
-        android:layout_width="199dp"
-        android:layout_height="wrap_content"
+        android:layout_width="210dp"
+        android:layout_height="66dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center_horizontal"
         android:layout_marginStart="102dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="110dp"
+        android:layout_marginEnd="99dp"
         android:layout_marginBottom="108dp"
         android:enabled="false"
         android:text="VALIDAR FOTOS" />

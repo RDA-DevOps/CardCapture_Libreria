@@ -6,13 +6,15 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PowerManager;
+import android.os.Handler;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
@@ -23,6 +25,7 @@ import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.objdetect.CascadeClassifier;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,7 +35,8 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
-    PowerManager.WakeLock wakeLock;
+    private Handler handler = new Handler();
+    private boolean shouldExecute = false;
     private JavaCameraView cameraBridgeViewBase;
     Mat rgb, gray;
     MatOfRect rects;
@@ -40,8 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private int framesCount = 120;
     Button btnNewPhoto;
     String base64Image;
-
-    @Override
+     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -49,6 +52,14 @@ public class MainActivity extends AppCompatActivity {
         cameraBridgeViewBase = findViewById(R.id.camera_view);
         cameraBridgeViewBase.setCameraPermissionGranted();
         btnNewPhoto = (Button) findViewById(R.id.btnNewPhoto);
+
+         handler.postDelayed(new Runnable() {
+             @Override
+             public void run() {
+                 shouldExecute = true;
+             }
+         }, 6000);
+
 
 
         btnNewPhoto.setOnClickListener(new View.OnClickListener() {
@@ -58,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setVisibility(View.GONE);
                 Intent intent = new Intent(MainActivity.this,MainActivity_Seconds.class);
-                //intent.putExtra("base64Image", base64Image);
+                intent.putExtra("base64Image", base64Image);
                 startActivity(intent);
             }
         });
@@ -102,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 Utils.matToBitmap(mat, bmp);
 
                 base64Image = convertBitmapToBase64(bmp);
+                System.out.println(base64Image);
                 runOnUiThread(() -> {
                     ImageView imageView = findViewById(R.id.imageView);
                     imageView.setImageBitmap(bmp);
@@ -122,12 +134,13 @@ public class MainActivity extends AppCompatActivity {
                 return Base64.encodeToString(byteArray, Base64.DEFAULT);
             }
 
-            private Mat rotateImage(Mat mat) {
+            private Mat rotateImage(Mat image) {
                 Mat rotated = new Mat();
-                Core.transpose(mat, rotated);
+                Core.transpose(image, rotated);
                 Core.flip(rotated, rotated, 1);
                 return rotated;
             }
+
 
             private boolean detectFace(Mat grayFrame) {
 
@@ -153,29 +166,30 @@ public class MainActivity extends AppCompatActivity {
 
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 rgb = inputFrame.rgba();
-                if (framesCount > 30) {
-                    framesCount = 0;
-                    AsyncTask.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            Mat originalFrame = inputFrame.rgba();
-                            Mat grayFrame = inputFrame.gray();
-                            boolean facesDetected = detectFace(grayFrame);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (facesDetected) {
-                                        Mat rotatedFrame = rotateImage(originalFrame);
-                                        saveCapturedImage(rotatedFrame);
-                                        Toast.makeText(getApplicationContext(), "Rostro detectado", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(getApplicationContext(), "No se ha detectado rostro", Toast.LENGTH_SHORT).show();
+
+                if (shouldExecute) {
+                    if (framesCount > 30) {
+                        framesCount = 0;
+                        AsyncTask.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                Mat originalFrame = inputFrame.rgba();
+                                Mat grayFrame = inputFrame.gray();
+                                boolean facesDetected = detectFace(grayFrame);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (facesDetected) {
+                                            Mat rotatedFrame = rotateImage(originalFrame);
+                                            saveCapturedImage(rotatedFrame);
+                                        }
                                     }
-                                }
-                            });
-                        }
-                    });
+                                });
+                            }
+                        });
+                    }
                 }
+
                 framesCount++;
                 return inputFrame.rgba();
             }
@@ -211,8 +225,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-
 
 
     //Validar Permisos Cada vez que se Inicie la app

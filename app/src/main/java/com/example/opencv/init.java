@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 
-public class Init extends AppCompatActivity {
+public class init extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +36,7 @@ public class Init extends AppCompatActivity {
         Bitmap bitmap2 = BitmapFactory.decodeByteArray(decodedImage2, 0, decodedImage2.length);
 
         ImageView imageView1 = findViewById(R.id.imageView1);
-        ImageView imageView2 = findViewById(R.id.imageView2);
+        ImageView imageView2 = findViewById(R.id.imageView3);
 
         imageView1.setImageBitmap(bitmap1);
         imageView2.setImageBitmap(bitmap2);
@@ -49,7 +49,7 @@ public class Init extends AppCompatActivity {
             public void onClick(View v) {
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setVisibility(View.GONE); // ocultar ImageView
-                Intent intent = new Intent(Init.this, MainActivity_Seconds.class);
+                Intent intent = new Intent(init.this, MainActivity_Seconds.class);
                 startActivity(intent);
                 onResume();
             }
@@ -77,9 +77,9 @@ public class Init extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 101) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(Init.this, "Permisos concedidos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(init.this, "Permisos concedidos", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(Init.this, "No se concedieron los permisos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(init.this, "No se concedieron los permisos", Toast.LENGTH_SHORT).show();
             }
         }
     }

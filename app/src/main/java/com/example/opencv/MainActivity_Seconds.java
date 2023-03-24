@@ -1,12 +1,11 @@
 package com.example.opencv;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
-import android.os.PowerManager;
+import android.os.Handler;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
@@ -18,74 +17,52 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfRect;
-import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class MainActivity_Seconds extends AppCompatActivity {
-    PowerManager.WakeLock wakeLock;
-    private JavaCameraView cameraBridgeViewBase;
-    Mat rgb, gray;
-    MatOfRect rects;
-    CascadeClassifier FaceModelCascadeClasifier;
-    private int framesCount = 120;
-    Button btnNewPhoto;
-    String base64Image;
-
-    @Override
+    JavaCameraView cameraBridgeViewBase;
+    Button Inicio;
+    String base64Image2;
+    boolean captured = false;
+    private long startTime = System.currentTimeMillis();
+     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_seconds);
         getPermission();
         cameraBridgeViewBase = findViewById(R.id.camera_view2);
         cameraBridgeViewBase.setCameraPermissionGranted();
-        btnNewPhoto = (Button) findViewById(R.id.Inicio);
+        Inicio = (Button) findViewById(R.id.Inicio);
 
 
-        btnNewPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btnNewPhoto.setEnabled(false);
-                ImageView imageView = findViewById(R.id.imageView);
-                imageView.setVisibility(View.GONE);
-                Intent intent = new Intent(MainActivity_Seconds.this, Init.class);
-                intent.putExtra("base64Image", base64Image);
-                startActivity(intent);
-            }
-        });
+         Inicio.setOnClickListener(new View.OnClickListener() {
+             String Imagen1= getIntent().getStringExtra("ParteDelantera");
+             @Override
+             public void onClick(View v) {
+                 if (captured) {
+                     ImageView imageView = findViewById(R.id.imageView2);
+                     imageView.setVisibility(View.GONE);
+                     Intent intent = new Intent(MainActivity_Seconds.this,init.class);
+                     intent.putExtra("ParteDelantera", Imagen1);
+                     intent.putExtra("ParteTrasera", base64Image2);
+                     startActivity(intent);
+                 } else {
+                     Toast.makeText(MainActivity_Seconds.this, "Por favor, tome una foto primero", Toast.LENGTH_SHORT).show();
+                 }
+             }
+         });
 
-        cameraBridgeViewBase.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
+
+         cameraBridgeViewBase.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
+
+
 
             public void onCameraViewStarted(int width, int height) {
-                rgb = new Mat();
-                gray = new Mat();
-                rects = new MatOfRect();
-                try {
-                    InputStream inputStream = getResources().openRawResource(R.raw.lbpcascade_frontalface);
-                    File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-                    File cascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
-                    FileOutputStream outputStream = new FileOutputStream(cascadeFile);
-
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                    }
-                    inputStream.close();
-                    outputStream.close();
-
-                    FaceModelCascadeClasifier = new CascadeClassifier(cascadeFile.getAbsolutePath());
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                startTime = System.currentTimeMillis();
             }
 
             @Override
@@ -93,27 +70,52 @@ public class MainActivity_Seconds extends AppCompatActivity {
 
             }
 
-            private void saveCapturedImage(Mat mat) {
+             private void saveCapturedImage(Mat mat) {
+                 Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
+                 Utils.matToBitmap(mat, bmp);
 
-            }
+                  Matrix matrix = new Matrix();
+                 matrix.postRotate(90);
+                 Bitmap rotatedBmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
 
-            private String convertBitmapToBase64(Bitmap bitmap) {
+                 base64Image2 = convertBitmapToBase64(rotatedBmp);
+                 System.out.println(base64Image2);
+                 runOnUiThread(() -> {
+                     ImageView imageView = findViewById(R.id.imageView2);
+                     imageView.setImageBitmap(rotatedBmp);
+                 });
+                 runOnUiThread(() -> {
+                     cameraBridgeViewBase.disableView();
+                 });
+                 captured = true;
+                 runOnUiThread(() -> {
+                     Inicio.setEnabled(true);
+                 });
+             }
+
+
+             private String convertBitmapToBase64(Bitmap bitmap) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
                 byte[] byteArray = outputStream.toByteArray();
                 return Base64.encodeToString(byteArray, Base64.DEFAULT);
             }
 
-            private Mat rotateImage(Mat mat) {
+            private Mat rotateImage(Mat image) {
                 Mat rotated = new Mat();
-                Core.transpose(mat, rotated);
-                Core.flip(rotated, rotated, 1);
+                 Core.transpose(image, rotated);
+                 Core.flip(rotated, rotated, 1);
                 return rotated;
             }
 
-
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-                 return inputFrame.rgba();
+                if (System.currentTimeMillis() - startTime > 5000) {
+                    rotateImage(inputFrame.rgba());
+                    saveCapturedImage(inputFrame.rgba());
+
+
+                }
+                return inputFrame.rgba();
             }
         });
 
