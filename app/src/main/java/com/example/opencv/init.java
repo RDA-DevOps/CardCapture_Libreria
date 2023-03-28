@@ -47,11 +47,8 @@ public class init extends AppCompatActivity {
         New.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImageView imageView = findViewById(R.id.imageView);
-                imageView.setVisibility(View.GONE); // ocultar ImageView
-                Intent intent = new Intent(init.this, MainActivity_Seconds.class);
-                startActivity(intent);
-                onResume();
+                Intent intent = new Intent(init.this, splash_screen.class);
+                 startActivity(intent);
             }
         });
 

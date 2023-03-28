@@ -41,14 +41,43 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center_horizontal"
-        android:layout_marginStart="101dp"
+        android:layout_marginStart="100dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="99dp"
-        android:layout_marginBottom="96dp"
+        android:layout_marginEnd="100dp"
+        android:layout_marginBottom="44dp"
         android:background="@drawable/shape_border"
         android:backgroundTint="#808000"
         android:enabled="false"
         android:text="SIGUIENTE FOTO" />
+
+    <TextView
+        android:id="@+id/ubica_la_pa"
+        android:layout_width="match_parent"
+        android:layout_height="332dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="149dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="179dp"
+        android:gravity="center_horizontal|top"
+        android:lineSpacingExtra="0sp"
+        android:rotation="90"
+        android:text="Ubica la parte Delantera de tu documento y toca la pantalla"
+        android:translationY="-0.19sp" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="141dp"
+        android:layout_height="178dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="362dp"
+        android:layout_marginEnd="124dp"
+        android:layout_marginBottom="119dp"
+        android:alpha="0.3"
+         app:srcCompat="@drawable/person" />
 
 
 </RelativeLayout>

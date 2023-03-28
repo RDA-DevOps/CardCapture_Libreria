@@ -44,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private int framesCount = 120;
     Button btnNewPhoto;
     String base64Image;
-     @Override
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -53,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
         cameraBridgeViewBase.setCameraPermissionGranted();
         btnNewPhoto = (Button) findViewById(R.id.btnNewPhoto);
 
-         handler.postDelayed(new Runnable() {
-             @Override
-             public void run() {
-                 shouldExecute = true;
-             }
-         }, 6000);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                shouldExecute = true;
+            }
+        }, 6000);
 
 
 
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setVisibility(View.GONE);
                 Intent intent = new Intent(MainActivity.this,MainActivity_Seconds.class);
                 intent.putExtra("base64Image", base64Image);
+
                 startActivity(intent);
             }
         });
@@ -168,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                 rgb = inputFrame.rgba();
 
                 if (shouldExecute) {
-                    if (framesCount > 30) {
+                    if (framesCount > 60) {
                         framesCount = 0;
                         AsyncTask.execute(new Runnable() {
                             @Override
