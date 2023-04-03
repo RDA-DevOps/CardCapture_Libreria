@@ -1,7 +1,9 @@
 package com.example.opencv;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -9,11 +11,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Base64;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
@@ -23,7 +28,9 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.ByteArrayOutputStream;
@@ -43,17 +50,22 @@ public class MainActivity extends AppCompatActivity {
     CascadeClassifier FaceModelCascadeClasifier;
     private int framesCount = 120;
     Button btnNewPhoto;
-    String base64Image;
+    String base64Image1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         getPermission();
-        cameraBridgeViewBase = findViewById(R.id.camera_view);
+        getpermissosextore();
+        getpermisosescritura();
+          cameraBridgeViewBase = findViewById(R.id.camera_view);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         cameraBridgeViewBase.setCameraPermissionGranted();
         btnNewPhoto = (Button) findViewById(R.id.btnNewPhoto);
-
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -70,8 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setVisibility(View.GONE);
                 Intent intent = new Intent(MainActivity.this,MainActivity_Seconds.class);
-                intent.putExtra("base64Image", base64Image);
-
+                intent.putExtra("capturafrontal",base64Image1);
                 startActivity(intent);
             }
         });
@@ -79,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         cameraBridgeViewBase.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
 
             public void onCameraViewStarted(int width, int height) {
-                rgb = new Mat();
+                 rgb = new Mat();
                 gray = new Mat();
                 rects = new MatOfRect();
                 try {
@@ -109,29 +120,29 @@ public class MainActivity extends AppCompatActivity {
                 gray.release();
                 rects.release();
             }
-
+            ///Modificar tipo de guardado de bas64 a bits o otro sistema de decode mas liviano
             private void saveCapturedImage(Mat mat) {
                 Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
                 Utils.matToBitmap(mat, bmp);
-
-                base64Image = convertBitmapToBase64(bmp);
-                System.out.println(base64Image);
+                base64Image1 = convertBitmapToBase64(bmp);
+                System.out.println(base64Image1);
                 runOnUiThread(() -> {
                     ImageView imageView = findViewById(R.id.imageView);
                     imageView.setImageBitmap(bmp);
                 });
                 runOnUiThread(() -> {
                     cameraBridgeViewBase.disableView();
-                });
+                 });
                 runOnUiThread(() -> {
                     Button button = findViewById(R.id.btnNewPhoto);
                     button.setEnabled(true);
+
                 });
             }
 
             private String convertBitmapToBase64(Bitmap bitmap) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 10, outputStream);
                 byte[] byteArray = outputStream.toByteArray();
                 return Base64.encodeToString(byteArray, Base64.DEFAULT);
             }
@@ -152,12 +163,12 @@ public class MainActivity extends AppCompatActivity {
                 MatOfRect faces = new MatOfRect();
                 double scaleFactor = 1.1;
                 int minNeighbors = 5;
-                Size minSize = new Size(200, 200);
+                Size minSize = new Size(210, 210);
                 FaceModelCascadeClasifier.detectMultiScale(grayFrame, faces, scaleFactor, minNeighbors, 0, minSize);
                 List<Rect> facesList = faces.toList();
 
                 for (Rect rect : facesList) {
-                    //Imgproc.rectangle(rgb,rect, new Scalar(0,255,0),10);
+                   // Imgproc.rectangle(rgb,rect, new     Scalar(0,255,0),10);
                     if (rect.x > (x / 2)) {
                         return true;
                     }
@@ -167,8 +178,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-                rgb = inputFrame.rgba();
-
+                 rgb = inputFrame.rgba();
                 if (shouldExecute) {
                     if (framesCount > 60) {
                         framesCount = 0;
@@ -236,6 +246,19 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 101);
         }
     }
+
+    private void getpermissosextore() {
+        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 101);
+        }
+    }
+
+    private void getpermisosescritura() {
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
+        }
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

@@ -16,8 +16,7 @@ import androidx.core.content.ContextCompat;
 
 
 public class init extends AppCompatActivity {
-
-    @Override
+     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.init);
@@ -26,10 +25,10 @@ public class init extends AppCompatActivity {
         Button New;
         New=(Button) findViewById(R.id.New);
 
-        String base64Image= getIntent().getStringExtra("ParteDelantera");
-        String base64Image2= getIntent().getStringExtra("ParteTrasera");
+        String base64Image1= getIntent().getStringExtra("capturafrontal");
+        String base64Image2= getIntent().getStringExtra("capturatrasera");
 
-        byte[] decodedImage = Base64.decode(base64Image, Base64.DEFAULT);
+        byte[] decodedImage = Base64.decode(base64Image1, Base64.DEFAULT);
         byte[] decodedImage2 = Base64.decode(base64Image2, Base64.DEFAULT);
 
         Bitmap bitmap1 = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.length);
@@ -40,9 +39,8 @@ public class init extends AppCompatActivity {
 
         imageView1.setImageBitmap(bitmap1);
         imageView2.setImageBitmap(bitmap2);
-        imageView1.setRotation(360);
-        imageView2.setRotation(180);
-
+         imageView1.setRotation(-90);
+         imageView2.setRotation(-90);
 
         New.setOnClickListener(new View.OnClickListener() {
             @Override

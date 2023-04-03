@@ -21,11 +21,12 @@
 
     <Button
         android:id="@+id/button"
-        android:layout_width="152dp"
-        android:layout_height="73dp"
+        android:layout_width="221dp"
+        android:layout_height="60dp"
+        android:background="@drawable/radius"
         android:backgroundTint="#FFFFFF"
         android:text="EMPECEMOS"
-        android:textColor="@color/black"
+         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

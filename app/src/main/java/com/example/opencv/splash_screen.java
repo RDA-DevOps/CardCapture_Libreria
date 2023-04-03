@@ -2,6 +2,7 @@ package com.example.opencv;
 
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -19,8 +20,7 @@ public class splash_screen extends AppCompatActivity {
         getPermission();
 
         button = (Button) findViewById(R.id.button);
-
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         button = (Button) findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {

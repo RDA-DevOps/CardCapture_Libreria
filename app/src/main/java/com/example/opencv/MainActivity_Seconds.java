@@ -3,6 +3,7 @@ package com.example.opencv;
 import static com.google.android.gms.vision.L.TAG;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -44,8 +45,7 @@ public class MainActivity_Seconds extends AppCompatActivity {
     private MultiFormatReader reader;
     String base64Image2;
     Button validar;
-    String base64Image1;
-    @Override
+     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_seconds);
@@ -53,19 +53,20 @@ public class MainActivity_Seconds extends AppCompatActivity {
         cameraBridgeViewBase = findViewById(R.id.camera_view2);
         cameraBridgeViewBase.setCameraPermissionGranted();
         validar = (Button) findViewById(R.id.validar);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-
-        base64Image1 = getIntent().getStringExtra("base64Image");
+        String base64Image1 = getIntent().getStringExtra("capturafrontal");
 
         validar.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
-                validar.setEnabled(false);
+                 validar.setEnabled(false);
                 ImageView imageView = findViewById(R.id.imageView2);
                 imageView.setVisibility(View.GONE);
                 Intent intent = new Intent(MainActivity_Seconds.this,init.class);
-                intent.putExtra("ParteDelantera", base64Image1);
-                intent.putExtra("ParteTrasera", base64Image2);
+                intent.putExtra("capturafrontal",base64Image1);
+                intent.putExtra("capturatrasera",base64Image2);
                 startActivity(intent);
             }
         });
@@ -84,7 +85,7 @@ public class MainActivity_Seconds extends AppCompatActivity {
             public void onCameraViewStopped() {
 
             }
-
+                //Moificar decode de base64 a bitmap
             private void saveCapturedImage(Mat mat) {
                 Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
                 Utils.matToBitmap(mat, bmp);
@@ -106,7 +107,7 @@ public class MainActivity_Seconds extends AppCompatActivity {
 
             private String convertBitmapToBase64(Bitmap bitmap) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 10, outputStream);
                 byte[] byteArray = outputStream.toByteArray();
                 return Base64.encodeToString(byteArray, Base64.DEFAULT);
             }
@@ -170,8 +171,7 @@ public class MainActivity_Seconds extends AppCompatActivity {
                         saveCapturedImage(rotatedFrame);
                          System.out.println(result);
                         /// ///  Log.d(TAG, "PDF417: " + result.getText());
-                      ///  showToast("PORFIN DETECTAMOS ALGO MKPON");
-                    }
+                     }
                 }
                 framesCount++;
                 return inputFrame.rgba();
@@ -181,7 +181,7 @@ public class MainActivity_Seconds extends AppCompatActivity {
 
         if (OpenCVLoader.initDebug()) {
             cameraBridgeViewBase.enableView();
-            cameraBridgeViewBase.enableFpsMeter();
+            //cameraBridgeViewBase.enableFpsMeter();
             //cameraBridgeViewBase.setMaxFrameSize(640,360);
         }
     }

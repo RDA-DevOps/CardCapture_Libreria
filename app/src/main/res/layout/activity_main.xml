@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#808080"
     tools:context=".MainActivity">
 
 
     <org.opencv.android.JavaCameraView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/camera_view"/>
+        android:id="@+id/camera_view"
+         />
 
     <ImageView
         android:id="@+id/imageView"
@@ -33,38 +35,64 @@
         android:background="@drawable/shape_border"
         android:rotation="180" />
 
+
     <Button
         android:id="@+id/btnNewPhoto"
-        android:layout_width="211dp"
-        android:layout_height="61dp"
+        android:layout_width="325dp"
+        android:layout_height="64dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center_horizontal"
-        android:layout_marginStart="100dp"
+        android:layout_marginStart="33dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="100dp"
-        android:layout_marginBottom="44dp"
-        android:background="@drawable/shape_border"
+        android:layout_marginEnd="35dp"
+        android:layout_marginBottom="54dp"
+        android:background="@drawable/radius"
         android:backgroundTint="#808000"
         android:enabled="false"
-        android:text="SIGUIENTE FOTO" />
+        android:text="SIGUIENTE FOTO"
+        android:textColor="@color/white" />
 
-    <TextView
-        android:id="@+id/ubica_la_pa"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="332dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/ub_ca_la_pa"
+            android:layout_width="347dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="140dp"
+            android:background="@drawable/radius"
+            android:gravity="center_horizontal|top"
+            android:lineSpacingExtra="0sp"
+            android:rotation="-270"
+            android:text="Ubíca la parte Delantera de tu cédula y la detectaremos"
+            android:textColor="@color/white"
+            android:translationY="-0.19sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/newxuser"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="149dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="179dp"
-        android:gravity="center_horizontal|top"
-        android:lineSpacingExtra="0sp"
-        android:rotation="90"
-        android:text="Ubica la parte Delantera de tu documento y toca la pantalla"
-        android:translationY="-0.19sp" />
+        android:layout_marginStart="162dp"
+        android:layout_marginTop="364dp"
+        android:layout_marginEnd="-132dp"
+        android:layout_marginBottom="404dp"
+        android:background="@drawable/radius"
+        android:backgroundTint="#808000"
+        android:enabled="false"
+        android:rotation="-270"
+        android:text="Ubica la parte Delantera de tu documento y toca la pantalla" />
 
     <ImageView
         android:id="@+id/imageView5"
@@ -73,11 +101,11 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="362dp"
-        android:layout_marginEnd="124dp"
-        android:layout_marginBottom="119dp"
+        android:layout_marginTop="386dp"
+        android:layout_marginEnd="115dp"
+        android:layout_marginBottom="100dp"
         android:alpha="0.3"
-         app:srcCompat="@drawable/person" />
+        app:srcCompat="@drawable/person" />
 
 
 </RelativeLayout>
